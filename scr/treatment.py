@@ -26,10 +26,14 @@ venda_max = df_util[df_util[parametro]==df_util[parametro].max()]
 venda_max[cidades]
 
 datas = df.groupby('Order Date')
-contagem_data=datas.count()
+contagem_data=datas["Order ID"].count()
+st.write(contagem_data)
 estados=df.groupby('State')
-contagem_estados=estados.count()
+contagem_estados=estados["Order ID"].count()
 cidades=df.groupby('City')
-contagem_cidades=cidades.count()
+contagem_cidades=cidades["Order ID"].count()
 contagem_cidades=contagem_cidades[0:10]
-st.bar_chart(contagem_cidades)
+
+segmento=df.groupby("Segment")
+contagem_segmento=segmento['Order ID'].count()
+st.write(contagem_segmento)
