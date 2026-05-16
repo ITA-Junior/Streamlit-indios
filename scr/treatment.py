@@ -29,4 +29,7 @@ datas = df.groupby('Order Date')
 contagem_data=datas.count()
 estados=df.groupby('State')
 contagem_estados=estados.count()
-
+cidades=df.groupby('City')
+contagem_cidades=cidades.count()
+contagem_cidades=contagem_cidades[0:10]
+st.bar_chart(contagem_cidades)
