@@ -24,16 +24,16 @@ df_util=df[df[categorias]==categoria]
 venda_max = df_util[df_util[parametro]==df_util[parametro].max()]
 # AQUI TEMOS A CIDADE EM QUESTÃO JUNTAMENTE COM O SEU ÍNDICE (POSIÇAO NA TABELA GIGANTESCA)
 venda_max[cidades]
+def contagem(object):
+    grupamento=df.groupby(object)
+    return grupamento['Order ID'].count()
 
 datas = df.groupby('Order Date')
 contagem_data=datas["Order ID"].count()
-st.write(contagem_data)
 estados=df.groupby('State')
 contagem_estados=estados["Order ID"].count()
 cidades=df.groupby('City')
 contagem_cidades=cidades["Order ID"].count()
 contagem_cidades=contagem_cidades[0:10]
-
 segmento=df.groupby("Segment")
 contagem_segmento=segmento['Order ID'].count()
-st.write(contagem_segmento)
