@@ -42,3 +42,32 @@ with aba2:
         df_filtrado=df[(df['Order Date']>=pd.to_datetime(inicio))&(df['Order Date']<=pd.to_datetime(fim))]
     else: df_filtrado=df
     st.bar_chart(df_filtrado.groupby('Order Date')['Sales'].sum())
+    st.info("Insight: O gráfico permite identificar picos sazonais nas vendas que podem estar atrelados a campanhas ou períodos do ano.")
+
+    st.divider()
+
+    st.subheader("Análise Geográfica de Vendas: ")
+    regioes=df['Region'].unique().tolist()
+    regioes.insert(0,'Todas')
+    filtro=st.sidebar.selectbox("Região: ",options=regioes)
+    if filtro=="Todas":
+        df_estado=df
+    else:
+        df_estado=df[df['Region']==filtro]
+    df_estado=df_estado.groupby("State")['Sales'].sum()
+    st.bar_chart(df_estado)
+    st.info("Insight: Concentração de receita indica quais estados são os principais motores financeiros da operação.")
+
+    st.divider()
+
+    st.subheader("As cidades com maiores vendas: ")
+    cidades = df.groupby("City")['Sales'].sum()
+    cidades = cidades.sort_values(ascending=False)
+    cidades=cidades[0:10]
+    st.bar_chart(cidades)
+    st.info("Insight: O esforço logístico deve ser priorizado nessas 10 cidades para garantir satisfação e maior retorno financeiro.")
+
+    st.divider()
+
+    st.subheader("Analise de Segmentos: ")
+    
