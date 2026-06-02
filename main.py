@@ -3,39 +3,42 @@ import pandas as pd
 import streamlit as st
 from supabase import create_client, Client
 from dotenv import load_dotenv
+import scr.treatment as tr
+
+df = tr.carregar_dados()
+df = tr.formatar()
+refinado=tr.refinamento()
+def questao1():
+    data=df[df["Category"]=="Office Supplies"]
+    return data[data['Sales'] == data['Sales'].max()]
+um=questao1()
+um=um.iloc[0]
 
 
-load_dotenv()
+st.set_page_config(page_title='Dashboard - ITAJr',layout='wide')
+aba1,aba2,aba3,aba4=st.tabs(['Visão Geral','Análises 1','Análises 2','Conclusões'])
 
+with aba1:
+    st.header("Visão Geral")
+    st.write("Aqui, mostramos uma tabela portando apenas os dados mais importantes das operações da empresa.")
+    st.write(f"Foram ao todo {len(refinado)} operações realizadas ao longo de {((df['Order Date'].max()-df['Order Date'].min()).days)//7} semanas")
+    st.write(f'em {refinado["City"].nunique()} cidades.')
+    st.dataframe(refinado)
 
-url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_KEY")
+with aba2:
+    st.subheader("Análise na categoria \"Office Supplies\":")
+    st.write(f"A melhor venda foi realizada em {um['City']} no dia {um['Order Date']}")
+    st.write(f"vendendo em {um['Sales']:.2f} reais, o que gerou um lucro de R${um['Profit']:.2f}")
+    st.info("Insight: Essa cidade pode ser um polo regional de vendas desse tipo de produto, sugerindo investimento e campanhas.")
 
+    st.divider()
 
-supabase: Client = create_client(url, key)
-
-@st.cache_data(ttl=600)
-def carregar_dados():
-
-    resposta = supabase.table("db").select("*").execute()
-    df = pd.DataFrame(resposta.data)
-
-
-# --- CONSTRUÇÃO DA TELA DO STREAMLIT ---
-st.set_page_config(page_title="Projeto ITA Jr", layout="wide")
-
-st.title("Dashboard de Vendas - ITA Jr 🚀")
-
-st.write("Conectando ao Supabase e carregando a planilha...")
-
-# Chama a função para criar o DataFrame
-df_vendas = carregar_dados()
-
-# Verifica se deu certo e mostra na tela
-if df_vendas is not None:
-    if not df_vendas.empty:
-        st.success("Conexão bem-sucedida! Veja a sua base de dados no formato Pandas:")
-        # Mostra as primeiras linhas para não pesar a tela
-        st.dataframe(df_vendas.head(10)) 
-    else:
-        st.warning("Conectou com sucesso, mas a tabela 'db' está vazia no Supabase.")
+    st.subheader("Total de vendas, em reais, por data: ")
+    limite_inferior=df['Order Date'].min().date()
+    limite_superior=df['Order Date'].max().date()
+    intervalo=st.sidebar.date_input("Faixa de tempo: ",value=(limite_inferior,limite_superior),min_value=limite_inferior,max_value=limite_superior)
+    if len(intervalo)==2:
+        inicio,fim=intervalo
+        df_filtrado=df[(df['Order Date']>=pd.to_datetime(inicio))&(df['Order Date']<=pd.to_datetime(fim))]
+    else: df_filtrado=df
+    st.bar_chart(df_filtrado.groupby('Order Date')['Sales'].sum())
