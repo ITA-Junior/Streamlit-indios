@@ -4,6 +4,7 @@ import streamlit as st
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import scr.treatment as tr
+import plotly.express as px
 
 df = tr.carregar_dados()
 df = tr.formatar()
@@ -70,4 +71,45 @@ with aba2:
     st.divider()
 
     st.subheader("Analise de Segmentos: ")
+    segmento=df.groupby("Segment")['Sales'].sum().reset_index()
+    figura=px.pie(segmento,values='Sales',names='Segment',title="Faturamento relativo de cada Segmento: ",hole=0)
+    st.plotly_chart(figura,use_container_width=True)
+    st.info("Insight: podemos ver aqui qual região precisa de maior investimento e publicidade.")
     
+    with aba3:
+        st.subheader("Análise anual de cada Segmento: ")
+        anos=df['Year'].unique().tolist()
+        anos.insert(0,'Todos')
+        opcao=st.sidebar.selectbox("Ano Selecionado: ",options=anos)
+        if opcao=='Todos':
+            planilha=df
+        else: planilha=df[df['Year']==opcao]
+        grafico=planilha.groupby(['Segment'])['Sales'].sum()
+        st.bar_chart(grafico)
+        st.info("Insight: Aqui vemos de que forma o retorno financeiro por segmento se comporta anualmente")
+
+        st.divider()
+
+        st.subheader('Simulação de Desconto: ')
+        st.write(f"Note que, nas vendas, um total de {len(df[df['Sales']>=1000])} de casos tiveram um valor de venda maior do que R$1000,00.")
+        st.write("Vamos, agora, simular se esses 2 casos tivessem algum desconto em suas compras: ")
+        desconto=st.sidebar.number_input('Escolha a porcentagem de desconto:',min_value=0,max_value=100)
+        desconto=float(desconto/100)
+        coisa=df
+        dineiro=(coisa.loc[coisa['Sales']>1000,'Sales']*desconto).sum()
+        st.write(f"Para comparação, se dessemos tal desconto nos produtos, um total de {dineiro:.2f} reais seria dado em desconto.")
+        st.write(f"")
+        st.info("Insight: Uma pequena quantidade de compras de alto valor atinge o teto do desconto, o que não prejudicaria gravemente a margem geral.")
+
+        st.divider()
+
+        st.subheader('Comparação entre as médias com e sem Desconto')
+        coisa=df
+        st.write(f"O Valor médio de venda, supondo sem aplicação de desconto, é de {df['Sales'].mean():.2f} reais.")
+        st.write(f"Já para o caso de aplicação de desconto, a média do retorno é de R${(coisa['Sales'].where(coisa['Sales']>=1000,coisa['Sales']*(1-desconto))).mean():.2f}")
+        st.info("Insight: O impacto absoluto por venda de alto valor mostra o custo direto dessa política de fidelização.")
+
+        st.divider()
+
+        st.subheader("Vendas de cada segmento em relação ao tempo: ")
+        
