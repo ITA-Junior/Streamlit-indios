@@ -168,5 +168,8 @@ with aba3:
     st.info("Insight: Podemos ver os produtos com maiores vendas com a região e faixa de tempo. A partir desses dados,\npodemos saber qual tipo de estoque reforçar.")
 
 with aba4:
-    st.subheader("Conclusões e Resultados: ")
-    
+    st.header("Conclusões e Recomendações")
+    st.write(f"""A partir dos dados apresentados, pode-se ver quais cidades e estados precisam de investimento em anúncio, a fim de fortalecer a presença da 
+             empresa em tais regiões.\n\nVemos também que Políticas de desconto para compras acima de $1000 afetam uma parcela específica de 
+             vendas, sendo uma boa alavanca de vendas sem erodir completamente a margem.\n\nTambém foi possível análisar a demanda de certas áreas
+             o que permite à empresa fortalecer este catálogo em certas regiões. """)
